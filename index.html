@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Tipos</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            background-color: #0B3954;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 20px;;
+            border: solid #FB3640 5px;
+            border-radius: 20px;
+        }
+
+        #selectors {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1 {
+            color: #FB3640;
+            font-size: 50px;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+        }
+
+        textarea {
+            width: 800px;
+            border: solid #21A179 3px;
+            border-radius: 5px;
+            height: 100px;
+            font-size: 20px;
+            padding: 10px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border: solid #9D69A3 3px;
+        }
+
+        select {
+            font-size: 20px;
+            border: solid #21A179 3px;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        select:focus {
+            outline-color: none;
+            border: solid #9D69A3 3px;
+        }
+
+        option{
+            font-size: 20px;
+            padding: 5px;
+            border: solid #21A179 3px;
+        }
+        
+        button {
+            font-size: 20px;
+            border: solid #21A179 3px;
+            border-radius: 5px;
+            padding: 5px;
+            background-color: #0B3954;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1000px) {
+            textArea {
+                width: 80vw
+            }
+        }
+
+        @media (max-width: 600px) {
+            #selectors {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Conversor de tipos</h1>
+
+    <div id="container">
+        <textarea name="input" id="input"></textarea>
+
+        <div id="selectors">
+            <select name="numType1" id="numType1">
+                <option value="d">Decimal</option>
+                <option value="b">Binario</option>
+                <option value="h">Hexadecimal</option>
+            </select>
+    
+            <button id="switchButton">Cambiar</button>
+    
+            <select name="numType2" id="numType2">
+                <option value="d">Decimal</option>
+                <option value="b">Binario</option>
+                <option value="h">Hexadecimal</option>
+            </select>
+        </div>
+
+        <textarea name="output" id="output" readonly></textarea>
+
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", (event) => {
+            const inputTextarea = document.getElementById("input");
+            const outputTextarea = document.getElementById("output");
+            const inputType = document.getElementById("numType1");
+            const outputType = document.getElementById("numType2");
+            const switchButton = document.getElementById("switchButton");
+
+            inputTextarea.addEventListener("input", getDataToConvert);
+            inputType.addEventListener("change", () => {
+                updateOutputTypeOptions();
+                getDataToConvert();
+            });
+            outputType.addEventListener("change", getDataToConvert);
+
+            switchButton.addEventListener("click", () => {
+                const outputValue = outputTextarea.value;
+                const temp = inputType.value;
+                inputType.value = outputType.value;
+                outputType.value = temp;
+                inputTextarea.value = outputValue;
+                updateOutputTypeOptions();
+                getDataToConvert();
+            })
+
+            function updateOutputTypeOptions() {
+                const fromType = inputType.value;
+                Array.from(outputType.options).forEach(option => {
+                    option.disabled = option.value === fromType;
+                });
+                if (outputType.value === fromType) {
+                    const firstEnabled = Array.from(outputType.options).find(opt => !opt.disabled);
+                    if (firstEnabled) outputType.value = firstEnabled.value;
+                }
+            }
+
+            function getDataToConvert() {
+                const inputValue = inputTextarea.value.trim();
+                if (inputValue === "") {
+                    outputTextarea.value="";
+                    return;
+                }
+
+                const fromType = inputType.value;
+                const toType = outputType.value;
+                let result = "";
+
+                if (fromType === toType) {
+                    result = "Error: El tipo de entrada y salida no pueden ser iguales.";
+                    outputTextarea.value = result;
+                    return;
+                }
+
+                try {
+                result = convertNumber(inputValue, fromType, toType);
+                } catch (e) {
+                result = "Error: " + e.message;
+                }
+                outputTextarea.value = result;
+            }
+
+            updateOutputTypeOptions();
+        });
+
+
+
+        function convertNumber(value, fromType, toType) {
+            let num;
+            switch (fromType) {
+                case "d":
+                num = parseInt(value, 10);
+                break;
+                case "b":
+                num = parseInt(value, 2);
+                break;
+                case "h":
+                num = parseInt(value, 16);
+                break;
+                default:
+                throw new Error("Tipo de entrada no soportado");
+            }
+            if (isNaN(num)) throw new Error("Valor de entrada inválido");
+
+            switch (toType) {
+                case "d":
+                return num.toString(10);
+                case "b":
+                return num.toString(2);
+                case "h":
+                return num.toString(16).toUpperCase();
+                default:
+                throw new Error("Tipo de salida no soportado");
+            }
+        }
+    </script>
+</body>
+</html>
