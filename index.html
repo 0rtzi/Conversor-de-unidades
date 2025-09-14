@@ -104,6 +104,7 @@
                 <option value="d">Decimal</option>
                 <option value="b">Binario</option>
                 <option value="h">Hexadecimal</option>
+                <option value="c2">Complemento a 2</option>
             </select>
     
             <button id="switchButton">Cambiar</button>
@@ -112,6 +113,7 @@
                 <option value="d">Decimal</option>
                 <option value="b">Binario</option>
                 <option value="h">Hexadecimal</option>
+                <option value="c2">Complemento a 2</option>
             </select>
         </div>
 
@@ -172,9 +174,9 @@
                 }
 
                 try {
-                result = convertNumber(inputValue, fromType, toType);
+                    result = convertNumber(inputValue, fromType, toType);
                 } catch (e) {
-                result = "Error: " + e.message;
+                    result = "Error: " + e.message;
                 }
                 outputTextarea.value = result;
             }
@@ -188,29 +190,69 @@
             let num;
             switch (fromType) {
                 case "d":
-                num = parseInt(value, 10);
-                break;
+                    num = parseInt(value, 10);
+                    break;
                 case "b":
-                num = parseInt(value, 2);
-                break;
+                    if (!/^([01]+)$/.test(value)) {
+                        throw new Error("Valor de entrada inválido");
+                    }
+                    num = parseInt(value, 2);
+                    break;
                 case "h":
-                num = parseInt(value, 16);
-                break;
+                    num = parseInt(value, 16);
+                    break;
+                case "c2":
+                    if (!/^([01]+)$/.test(value)) {
+                        throw new Error("Valor de entrada inválido");
+                    }
+                    num = fromComplement2(value);
+                    break;
                 default:
-                throw new Error("Tipo de entrada no soportado");
+                    throw new Error("Tipo de entrada no soportado");
             }
             if (isNaN(num)) throw new Error("Valor de entrada inválido");
 
             switch (toType) {
                 case "d":
-                return num.toString(10);
+                    return num.toString(10);
                 case "b":
-                return num.toString(2);
+                    return num.toString(2);
                 case "h":
-                return num.toString(16).toUpperCase();
+                    return num.toString(16).toUpperCase();
+                case "c2":
+                    return toComplement2(num);
                 default:
-                throw new Error("Tipo de salida no soportado");
+                    throw new Error("Tipo de salida no soportado");
             }
+        }
+
+        function fromComplement2(value) {
+            const bitNum = value.length;
+            if (bitNum <= 1) {
+                throw new Error("Ingresa al menos un bit más para hacer la conversión");
+                return;
+            }
+
+            if (value.split("")[0] == 0) {
+                return parseInt(value, 2);
+            }
+
+            return 0 - (parseInt(value
+                .split('')
+                .map(bit => (bit === '0' ? '1' : '0'))
+                .join(''), 2) + 1);
+        }
+
+        function toComplement2(value) {
+            if (value >= 0) {
+                return "0" + value.toString(2);
+            }
+
+            const bitNum = Math.abs(value).toString(2).length + 1;
+            
+            return (value + Math.pow(2, bitNum)).toString(2);
+
+
         }
     </script>
 </body>
