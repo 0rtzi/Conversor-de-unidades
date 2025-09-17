@@ -105,6 +105,8 @@
                 <option value="b">Binario</option>
                 <option value="h">Hexadecimal</option>
                 <option value="c2">Complemento a 2</option>
+                <option value="sm">Signo Magnitud</option>
+                <option value="cbd">CBD</option>
             </select>
     
             <button id="switchButton">Cambiar</button>
@@ -114,6 +116,8 @@
                 <option value="b">Binario</option>
                 <option value="h">Hexadecimal</option>
                 <option value="c2">Complemento a 2</option>
+                <option value="sm">Signo Magnitud</option>
+                <option value="cbd">CBD</option>
             </select>
         </div>
 
@@ -207,6 +211,9 @@
                     }
                     num = fromComplement2(value);
                     break;
+                case "sm" :
+                    num = fromSM(value)
+                    break;
                 default:
                     throw new Error("Tipo de entrada no soportado");
             }
@@ -221,9 +228,32 @@
                     return num.toString(16).toUpperCase();
                 case "c2":
                     return toComplement2(num);
+                case "sm":
+                    return toSM(num);
                 default:
                     throw new Error("Tipo de salida no soportado");
             }
+        }
+
+        function fromSM(value){
+            if (value.split("")[0] == 0) {
+                return parseInt(value, 2);
+            }
+
+            console.log(parseInt(value, 2));
+            console.log(parseInt(value , 2) * (-1));
+
+            return parseInt(value , 2) * (-1) + Math.sqrt(2, value.length - 1);
+
+        }
+
+        function toSM(value) {
+            if (value >= 0) {
+                return value.toString(2);
+            }
+
+            return "1" + Math.abs(value).toString(2);
+
         }
 
         function fromComplement2(value) {
